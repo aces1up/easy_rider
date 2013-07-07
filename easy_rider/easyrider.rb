@@ -31,12 +31,13 @@ class EasyRider
 
         @conn         = nil
 
-        @load_css = @load_css ? 'yes' : 'no'
+        @load_css          = @load_css ? 'yes' : 'no'
+        @browser_type      = @browser_type.to_s.downcase.to_sym
 
         init_connection()
     end
 
-    def switches()
+    def phantom_switches()
         args = []
         args << "--ignore-ssl-errors=#{@ignore_ssl_errors}"
         #args << "--load-styles=#{@load_css}"
@@ -47,23 +48,26 @@ class EasyRider
     end
 
     def init_connection()
-        if @browser_type == :phantomjs
-           @conn = Watir::Browser.new( @browser_type, :args => switches )
+
+        case @browser_type
+            when :phantomjs   ;   @conn = Watir::Browser.new( @browser_type, :args => phantom_switches )
         else
-           @conn = Watir::Browser.new( @browser_type )
+            @conn = Watir::Browser.new( @browser_type )
         end
+
         @conn.window.resize_to( @window_size[0], @window_size[1] )
+
     end
 
     def screenshot( filename )
         @conn.screenshot.save filename
     end
 
-    def url()
+    def cur_url()
         @conn.url
     end
 
-    def uri()
+    def cur_uri()
         cur_url = url
         return nil if cur_url.nil? or cur_url.empty?
         URI( cur_url )
